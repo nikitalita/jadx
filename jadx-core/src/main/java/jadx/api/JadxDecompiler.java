@@ -251,18 +251,21 @@ public final class JadxDecompiler implements Closeable {
 					.filter(resourceFile -> resourceFile.getType() == ResourceType.MANIFEST)
 					.findFirst()
 					.orElseThrow(IllegalStateException::new);
-
-			ResContainer strings = resources.stream()
-					.filter(resourceFile -> resourceFile.getType() == ResourceType.ARSC)
-					.findFirst()
-					.orElseThrow(IllegalStateException::new)
-					.loadContent()
-					.getSubFiles()
-					.stream()
-					.filter(resContainer -> resContainer.getFileName().contains("strings.xml"))
-					.findFirst()
-					.orElseThrow(IllegalStateException::new);
-
+			ResContainer strings;
+			try {
+				strings = resources.stream()
+						.filter(resourceFile -> resourceFile.getType() == ResourceType.ARSC)
+						.findFirst()
+						.orElseThrow(IllegalStateException::new)
+						.loadContent()
+						.getSubFiles()
+						.stream()
+						.filter(resContainer -> resContainer.getFileName().contains("strings.xml"))
+						.findFirst()
+						.orElseThrow(IllegalStateException::new);
+			} catch (IllegalStateException e) {
+				strings = null;
+			}
 			ExportGradleProject export = new ExportGradleProject(root, args.getOutDir(), androidManifest, strings);
 			export.init();
 			sourcesOutDir = export.getSrcOutDir();

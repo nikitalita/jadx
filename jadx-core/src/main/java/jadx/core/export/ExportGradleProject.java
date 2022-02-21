@@ -70,7 +70,7 @@ public class ExportGradleProject {
 	}
 
 	private void saveSettingsGradle() throws IOException {
-		TemplateFile tmpl = TemplateFile.fromResources("/export/settings.gradle.tmpl");
+		TemplateFile tmpl = TemplateFile.fromResources("/export/app.settings.gradle.tmpl");
 
 		tmpl.add("applicationName", applicationParams.getApplicationName());
 		tmpl.save(new File(projectDir, "settings.gradle"));
@@ -152,6 +152,10 @@ public class ExportGradleProject {
 	}
 
 	private Document parseAppStrings(ResContainer appStrings) {
+		if (appStrings == null){
+			return parseXml("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+					"<resources>\n</resources>");
+		}
 		String content = appStrings.getText().getCodeStr();
 
 		return parseXml(content);
