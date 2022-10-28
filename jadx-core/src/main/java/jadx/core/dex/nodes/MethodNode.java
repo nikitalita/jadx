@@ -643,7 +643,7 @@ public class MethodNode extends NotificationAttrNode implements IMethodDetails, 
 		return loaded;
 	}
 
-	public ICodeReader getCodeReader() {
+	public @Nullable ICodeReader getCodeReader() {
 		return codeReader;
 	}
 
