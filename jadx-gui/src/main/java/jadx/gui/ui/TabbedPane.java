@@ -33,6 +33,7 @@ import jadx.gui.ui.panel.ImagePanel;
 import jadx.gui.utils.JumpManager;
 import jadx.gui.utils.JumpPosition;
 import jadx.gui.utils.NLS;
+import jadx.gui.utils.UiUtils;
 
 public class TabbedPane extends JTabbedPane {
 	private static final long serialVersionUID = -8833600618794570904L;
@@ -303,7 +304,9 @@ public class TabbedPane extends JTabbedPane {
 
 	private void addContentPanel(ContentPanel contentPanel) {
 		openTabs.put(contentPanel.getNode(), contentPanel);
-		add(contentPanel);
+		int tabCount = getTabCount();
+		add(contentPanel, tabCount);
+		setTabComponentAt(tabCount, makeTabComponent(contentPanel));
 	}
 
 	public void closeCodePanel(ContentPanel contentPanel) {
@@ -322,7 +325,6 @@ public class TabbedPane extends JTabbedPane {
 			}
 			FocusManager.listen(panel);
 			addContentPanel(panel);
-			setTabComponentAt(indexOfComponent(panel), makeTabComponent(panel));
 		}
 		return panel;
 	}
@@ -333,6 +335,27 @@ public class TabbedPane extends JTabbedPane {
 			setTabComponentAt(indexOfComponent(panel), makeTabComponent(panel));
 			fireStateChanged();
 		}
+	}
+
+	public void reloadInactiveTabs() {
+		UiUtils.uiThreadGuard();
+		int tabCount = getTabCount();
+		if (tabCount == 1) {
+			return;
+		}
+		int current = getSelectedIndex();
+		for (int i = 0; i < tabCount; i++) {
+			if (i == current) {
+				continue;
+			}
+			JNode node = ((ContentPanel) getComponentAt(i)).getNode();
+			ContentPanel panel = node.getContentPanel(this);
+			FocusManager.listen(panel);
+			openTabs.put(node, panel);
+			setComponentAt(i, panel);
+			setTabComponentAt(i, makeTabComponent(panel));
+		}
+		fireStateChanged();
 	}
 
 	@Nullable

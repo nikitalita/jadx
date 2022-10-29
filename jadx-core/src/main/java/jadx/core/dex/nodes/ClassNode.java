@@ -351,7 +351,7 @@ public class ClassNode extends NotificationAttrNode
 		innerClasses.forEach(ClassNode::deepUnload);
 	}
 
-	private void unloadFromCache() {
+	public void unloadFromCache() {
 		if (isInner()) {
 			return;
 		}
