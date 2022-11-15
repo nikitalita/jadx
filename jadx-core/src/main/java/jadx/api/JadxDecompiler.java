@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,7 +100,7 @@ public final class JadxDecompiler implements Closeable {
 	private final Map<ClassNode, JavaClass> classesMap = new ConcurrentHashMap<>();
 	private final Map<MethodNode, JavaMethod> methodsMap = new ConcurrentHashMap<>();
 	private final Map<FieldNode, JavaField> fieldsMap = new ConcurrentHashMap<>();
-	private final Map<PackageNode, JavaPackage> pkgsMap = new ConcurrentHashMap<>();
+	private final Map<PackageNode, JavaPackage> pkgsMap = Collections.synchronizedMap(new IdentityHashMap<>());
 
 	private final IDecompileScheduler decompileScheduler = new DecompilerScheduler();
 
@@ -418,6 +419,7 @@ public final class JadxDecompiler implements Closeable {
 	}
 
 	public List<JavaPackage> getPackages() {
+		pkgsMap.clear(); // reset cache
 		return Utils.collectionMap(root.getPackages(), this::convertPackageNode);
 	}
 

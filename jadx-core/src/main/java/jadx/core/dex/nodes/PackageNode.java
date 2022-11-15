@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 import jadx.core.dex.info.PackageInfo;
 
+import static jadx.core.utils.StringUtils.containsChar;
+
 public class PackageNode implements IPackageUpdate, IDexNode, Comparable<PackageNode> {
 
 	private final RootNode root;
@@ -63,16 +65,16 @@ public class PackageNode implements IPackageUpdate, IDexNode, Comparable<Package
 	public void rename(String newName, boolean runUpdates) {
 		String alias;
 		boolean isFullAlias;
-		if (newName.indexOf('/') != -1) {
+		if (containsChar(newName, '/')) {
 			alias = newName.replace('/', '.');
 			isFullAlias = true;
-		} else if (newName.endsWith(".")) {
-			// treat as full pkg, remove ending dot
-			alias = newName.substring(0, newName.length() - 1);
+		} else if (newName.startsWith(".")) {
+			// treat as full pkg, remove start dot
+			alias = newName.substring(1);
 			isFullAlias = true;
 		} else {
 			alias = newName;
-			isFullAlias = alias.indexOf('.') != -1;
+			isFullAlias = containsChar(newName, '.');
 		}
 		if (isFullAlias) {
 			setFullAlias(alias, runUpdates);
@@ -148,7 +150,7 @@ public class PackageNode implements IPackageUpdate, IDexNode, Comparable<Package
 		aliasPkgInfo = pkgInfo;
 	}
 
-	public PackageNode getParentPkg() {
+	public @Nullable PackageNode getParentPkg() {
 		return parentPkg;
 	}
 
@@ -170,6 +172,10 @@ public class PackageNode implements IPackageUpdate, IDexNode, Comparable<Package
 
 	public List<ClassNode> getClasses() {
 		return classes;
+	}
+
+	public boolean isEmpty() {
+		return classes.isEmpty() && subPackages.isEmpty();
 	}
 
 	@Override
