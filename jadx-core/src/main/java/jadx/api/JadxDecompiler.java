@@ -247,23 +247,29 @@ public final class JadxDecompiler implements Closeable {
 		File sourcesOutDir;
 		File resOutDir;
 		if (args.isExportAsGradleProject()) {
-			ResourceFile androidManifest = resources.stream()
-					.filter(resourceFile -> resourceFile.getType() == ResourceType.MANIFEST)
-					.findFirst()
-					.orElseThrow(IllegalStateException::new);
+			ResourceFile androidManifest;
 			ResContainer strings;
-			try {
-				strings = resources.stream()
-						.filter(resourceFile -> resourceFile.getType() == ResourceType.ARSC)
-						.findFirst()
-						.orElseThrow(IllegalStateException::new)
-						.loadContent()
-						.getSubFiles()
-						.stream()
-						.filter(resContainer -> resContainer.getFileName().contains("strings.xml"))
+			try{
+				androidManifest = resources.stream()
+						.filter(resourceFile -> resourceFile.getType() == ResourceType.MANIFEST)
 						.findFirst()
 						.orElseThrow(IllegalStateException::new);
-			} catch (IllegalStateException e) {
+				try {
+					strings = resources.stream()
+							.filter(resourceFile -> resourceFile.getType() == ResourceType.ARSC)
+							.findFirst()
+							.orElseThrow(IllegalStateException::new)
+							.loadContent()
+							.getSubFiles()
+							.stream()
+							.filter(resContainer -> resContainer.getFileName().contains("strings.xml"))
+							.findFirst()
+							.orElseThrow(IllegalStateException::new);
+				} catch (IllegalStateException e) {
+					strings = null;
+				}
+			} catch (IllegalStateException e){
+				androidManifest = null;
 				strings = null;
 			}
 			ExportGradleProject export = new ExportGradleProject(root, args.getOutDir(), androidManifest, strings);

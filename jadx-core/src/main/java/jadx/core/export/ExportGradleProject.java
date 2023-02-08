@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,6 +163,9 @@ public class ExportGradleProject {
 	}
 
 	private Document parseAndroidManifest(ResourceFile androidManifest) {
+		if (androidManifest == null){
+			return parseXml("<xml></xml>");
+		}
 		String content = androidManifest.loadContent().getText().getCodeStr();
 
 		return parseXml(content);
